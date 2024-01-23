@@ -1,0 +1,109 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <td>姓名</td>
+            <td>年資</td>
+            <td>薪水</td>
+        </tr>
+    </thead>
+</table>
+
+
+@section Scripts{
+    <script>
+        const table = document.querySelector('table');
+
+        const emps = [{ "name": "Allen", "workYears": 3, "salary": 35000 },
+        { "name": "Bllen", "workYears": 8, "salary": 80000 },
+        { "name": "Cllen", "workYears": 5, "salary": 50000 }];
+
+        // let emps = JSON.stringify(empstr);
+        // $('.e1')
+
+        let htmlStr = emps.map((e, i) => {
+            return `<tr class="e${i + 1}">
+                        <td>${e.name}</td>
+                        <td>${e.workYears}</td>
+                        <td>${e.salary}</td>
+                    </tr>`;
+        }).join('');
+
+        const node = document.createElement('tbody');
+        node.innerHTML = htmlStr;
+
+        table.append(node);
+
+        // $('.tb').html(htmlStr);
+
+        // function Show(data) {
+        //     const promise = new Promise((resolve, reject) => {
+        //         setTimeout(() => resolve(data), 1000);
+        //     });
+        //     return promise;
+        // }
+
+        //async await => 用同步程式語法結構，完成非同步的效果
+        // (async () => {
+        //     let data = await Show('A');
+        //     console.log(data);
+        //     data = await Show('B');
+        //     console.log(data);
+        //     data = await Show('C');
+        //     console.log(data);
+        //     console.log('END');
+        // })();
+
+
+        // function Show(data) {
+        //     const promise = new Promise((resolve, reject) => {
+        //         setTimeout(() => resolve(data), 1000);
+        //     });
+        //     return promise;
+        // }
+
+        // console.log(Show('A'));
+
+        // Show('A')
+        //     .then(d => {
+        //         console.log(d);
+        //         return Show('B');
+        //     }).then(d => {
+        //         console.log(d);
+        //         return Show('C');
+        //     }).then(d => {
+        //         console.log(d);
+        //     }).finally(() => {
+        //         console.log('END');
+        //     });
+
+
+
+        //建立Promise物件
+        // const promise = new Promise((resolve, reject) => { 
+        //     //非同步程式碼
+        //     const num = Math.random > 0.5 ? 1 : 0;
+
+        //     num ? resolve('成功') : reject('失敗');
+        // });
+
+
+        // //使用 Promise
+
+        // promise.then((data) => {
+        //     console.log(data);
+        // }).catch((err) => {
+        //     console.log(err);
+        // }).finally(() => {
+        //     console.log('END');
+        // });
+    </script>
+}
