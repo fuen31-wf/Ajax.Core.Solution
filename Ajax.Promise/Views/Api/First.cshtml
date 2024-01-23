@@ -1,0 +1,72 @@
+﻿
+@{
+    ViewData["Title"] = "First";
+}
+
+<h1>First</h1>
+<button id="btn1" class="btn btn-primary">AjaxStart</button>
+<button id="btn2" class="btn btn-primary">AjaxStop</button>
+<img src="~/images/Spinner.gif" style="display:none" id="img1"/>
+<div id="div1" class="alert alert-info"></div>
+    
+@section Scripts{
+    <script>
+        const btn1 = document.getElementById("btn1");
+        const btn2 = document.getElementById("btn2");
+
+        const div1 = document.getElementById("div1");
+        const img1 = document.getElementById("img1");
+
+        let abortController;
+
+        btn1.addEventListener("click", async () => {
+            try {
+                img1.style.display = "inline";
+                btn1.setAttribute("disabled", "disabled");
+
+                abortController = new AbortController();
+                const signal = abortController.signal;
+
+                setTimeout(() => abortController.abort(), 6000);
+
+                const response = await fetch('@Url.Content("~/api/index")', {signal});
+                if (!response.ok) throw new Error(response.status);
+                const data = await response.text();
+                this.div1.innerHTML = `<h2>${data}</h2>`
+            } catch (err) {
+                this.div1.innerHTML = `<h2>${err}</h2>`
+            } finally { //有無錯都執行
+                console.log('finally');
+                img1.style.display = "none";
+                btn1.removeAttribute("disabled");
+            }
+
+            // console.log(fetch("/api/index"));
+            //~波浪符指向專案的根目錄，但 Razor 引擎不會處理 js 必須加上 at 符號強制 Razor 引擎處理
+            // fetch('@Url.Content("~/api/index")')
+            //     .then(response => {
+            //         // console.log(response);
+            //         // console.log(response.text());
+            //         response.headers.forEach((value, name) => {
+            //             console.log(value, name);
+            //         });
+            //         // console.log('ok: ' + response.ok);
+            //         // console.log('status: ' + response.status);
+            //         if (!response.ok) throw new Error(response.statusText);
+
+            //         return response.text();
+            //     })
+            //     .then(data => {
+            //         //讀出資料，顯示資料
+            //         div1.innerHTML = `<h2>${data}</h2>`;
+            //     });
+        });
+
+        btn2.addEventListener("click", () => {
+            if (abortController) {
+                abortController.abort();
+            }
+        });
+    </script>
+}
+

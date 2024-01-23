@@ -1,0 +1,61 @@
+﻿
+@{
+    ViewData["Title"] = "Address";
+}
+
+<h1>Address</h1>
+<select id="selectCity">
+    <option value="1">選擇縣市</option>
+    @* <option value="1">Item2</option> *@
+    @* <option value="1">Item3</option> *@
+    @* <option value="1">Item4</option> *@
+    @* <option value="1">Item5</option> *@
+</select>
+<select id="selectDist">
+    <option value="1">選擇鄉鎮</option>
+    @* <option value="1">Item2</option> *@
+    @* <option value="1">Item3</option> *@
+    @* <option value="1">Item4</option> *@
+    @* <option value="1">Item5</option> *@
+</select>
+<select id="selectRoad">
+    <option value="1">選擇路段</option>
+    @* <option value="1">Item2</option> *@
+    @* <option value="1">Item3</option> *@
+    @* <option value="1">Item4</option> *@
+    @* <option value="1">Item5</option> *@
+</select>
+
+@section Scripts{
+    <script>
+        const selectCity = document.getElementById('selectCity');
+        const selectDist = document.getElementById('selectDist');
+        const selectRoad = document.getElementById('selectRoad');
+
+        (async() => { 
+            const response =await fetch('@Url.Content("~/api/cities")');
+            const cities = await response.json();
+            optCities = cities.map((c, index) => `<option id=city${index + 1} value="${c}">${c}</option>`).join('');
+            selectCity.innerHTML = optCities;
+        })();
+
+        selectCity.addEventListener('change', async (event) => {
+            let city = selectCity.value;
+            const response = await fetch(`@Url.Content("~/api/dists")?city=${city}`);
+            const dists = await response.json();
+            optDists = dists.map((d, index) => `<option id=dist${index + 1} value="${d}">${d.slice(3)}</option>`).join('');
+            selectDist.innerHTML = optDists;
+
+            selectRoad.innerHTML = '<option value="1">選擇路段</option>';
+        });
+
+        selectDist.addEventListener('change', async (event) => {
+            let dist = event.target.value;
+            // console.log(dist);
+            const response = await fetch(`@Url.Content("~/api/roads")?dist=${dist}`);
+            const roads = await response.json();
+            optRoads = roads.map((r, index) => `<option id=road${index + 1} value="${r}">${r}</option>`).join('');
+            selectRoad.innerHTML = optRoads;
+        });
+    </script>
+}
