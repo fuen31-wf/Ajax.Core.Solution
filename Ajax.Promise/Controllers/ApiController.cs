@@ -1,6 +1,13 @@
 ﻿using Ajax.Promise.Models;
+using Ajax.Promise.Models.JsonModels;
+using Ajax.Promise.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
+using System.Linq;
 using System.Text;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Ajax.Promise.Controllers
 {
@@ -34,10 +41,10 @@ namespace Ajax.Promise.Controllers
             return View();
         }
 
-        public IActionResult RegisterResult(string name, int age=26)
+        public IActionResult RegisterResult(RegisterVm vm)
         {
-            if (string.IsNullOrEmpty(name)) name = "Guest";
-            return Content($"Hello {name}, You are {age} years old.");
+            if (string.IsNullOrEmpty(vm.name)) vm.name = "Guest";
+            return Content($"Hello {vm.name}, You are {vm.age} years old, email: {vm.email}");
         }
 
         public IActionResult Address() { 
@@ -69,6 +76,67 @@ namespace Ajax.Promise.Controllers
 
             byte[] img = member.FileData;
             return File(img, "image/jpeg");
+        }
+
+        public IActionResult Spots()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        public IActionResult Spots([FromBody]SpotsCriteriaVm cr)
+        {
+            var query = _dbContext.SpotImagesSpots.AsNoTracking();
+
+            query = cr.categoryId == 0 ?
+                query : query.Where(s => s.CategoryId == cr.categoryId);
+
+            query = string.IsNullOrEmpty(cr.keyword) ?
+                query : query.Where(s => s.SpotDescription.Contains(cr.keyword) ||
+                                         s.Address.Contains(cr.keyword));
+
+            switch (cr.sortBy)
+            {
+                default:
+                    query = query.OrderBy(s => s.SpotId);
+                    break;
+                case "Address":
+                    query = query.OrderBy(s => s.Address);
+                    break;
+                case "DateCreated":
+                    query = query.OrderBy(s => s.DateCreated);
+                    break;
+            }
+
+            if (cr.sortType == "desc")
+            {
+                query = query.Reverse();
+            }
+
+            int count = query.Count();
+
+            int page = cr.page ?? 1;
+            int pageSize = cr.pageSize ?? 9;
+
+            int totalPages = (int)Math.Ceiling(count / (double)pageSize);
+
+            query = query.Skip((page - 1) * (pageSize)).Take(pageSize);
+
+            var data = query.ToList();
+
+            var spotsJm = new SpotsJm
+            {
+                totalPages = totalPages,
+                currentPage = page,
+                spots = data,
+                totalCount = count
+            };
+
+
+            //if(cr.sortType == "desc")
+
+            return Json(spotsJm);
         }
     }
 }

@@ -1,0 +1,77 @@
+﻿
+@{
+    ViewData["Title"] = "Spots";
+}
+
+<h1>Spots</h1>
+<div class="row mb-3">
+    <div class="col-9"></div>
+    <div class="col-3">
+        <input id="keySearch" class="form-control" type="text" placeholder="搜尋景點" aria-label="default input example">
+    </div>
+</div>
+<div class="row row-cols-1 row-cols-md-3 g-4 cards">
+</div>
+
+@section Scripts{
+    <script>
+        const spotsCriteria ={
+            "keyword" : "北投",
+            "categoryId" : 0,
+            "sortBy" : null,
+            "sortType" : "asc",
+            "page" : 2,
+            "pageSize" : 9
+        }
+
+        const cards = document.querySelector(".cards");
+        const keySearch = document.querySelector('#keySearch');
+
+        keySearch.addEventListener('keydown', (ev) => {
+            if (ev.which === 13) {
+                spotsCriteria.keyword = keySearch.value;
+                spotsCriteria.page = 1;
+                loadSpots();
+            }
+        })
+
+        loadSpots();
+
+
+        async function loadSpots (){
+            const url = `@Url.Content("~/api/spots")`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(spotsCriteria)
+            });
+            const datas = await response.json();
+            const spots = datas.spots;
+            const spotsHtml = spots.map(s => CreatCard(s)).join('');
+            cards.innerHTML = spotsHtml;
+        }
+
+        function CreatCard(s) {
+            const {spotId, spotTitle, spotDescription, spotImage, address} = s;
+            console.log(spotDescription.length)
+            const des = spotDescription.length <= 100 ? 
+                spotDescription : spotDescription.slice(0 ,100) + '...';
+
+            return `
+            <div class="col">
+                <div class="card h-100">
+                    <img src="${spotImage}" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">${spotId} - ${spotTitle}</h5>
+                        <p class="card-text">${des}</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-body-secondary">${address}</small>
+                    </div>
+                </div>
+            </div>`;
+        }
+    </script>
+}

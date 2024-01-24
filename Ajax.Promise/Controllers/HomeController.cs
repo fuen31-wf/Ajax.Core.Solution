@@ -1,4 +1,5 @@
 using Ajax.Promise.Models;
+using Ajax.Promise.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
