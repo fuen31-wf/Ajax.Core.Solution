@@ -4,8 +4,7 @@
 }
 
 <h1>Homework 2</h1>
-
-<form method="post" action="#" id="userForm">
+<form method="post" action="#" id="userForm" class="">
     <div>
         <label for="name" class="form-label">姓名:</label>
         <input type="text" id="name" name="name" class="form-control mb-3">
@@ -18,9 +17,13 @@
     </div>
     <div>
         <label for="age" class="form-label">年紀:</label><br>
-        <input type="text" id="age" name="age" class="form-control mb-3">
+        <input type="number" id="age" name="age" class="form-control mb-3">
     </div>
-    <input id="submit1" type="submit" value="Submit" class="btn btn-primary mt-3"/>
+    <div>
+        <label for="imgForm" class="form-label">頭像:</label><br>
+        <input type="file" id="imgForm" name="imgForm" class="form-control mb-3">
+    </div>
+    <input id="submit1" type="submit" value="送出" class="btn btn-primary mt-3"/>
     <div id="alert2" class="alert alert-primary d-flex align-items-center mt-2 d-none" role="alert">
     </div>
 </form>
@@ -31,6 +34,7 @@
         const alert1 = document.getElementById("alert1");
         const submit1 = document.getElementById("submit1");
         const alert2 = document.getElementById("alert2");
+        const userForm = document.getElementById("userForm");
 
         inputName.addEventListener("keyup", async() => {
             let keyIn = inputName.value;
@@ -58,13 +62,22 @@
 
         submit1.addEventListener('click', async (event) => {
             event.preventDefault(); //防止預設行為的發生
-            const formData = new FormData(document.querySelector('#userForm'));
-            const response = await fetch('@Url.Content("~/homework2/register")', {
+
+            //透過 FormData 物件讀取資料
+            const formData = new FormData(userForm);
+
+            for (let ele of formData) {
+                console.log(ele);
+            }
+
+            //將 FormData 資料以 POST 傳送到 Server 端
+            const url = '@Url.Content("~/homework2/register")';
+            const response = await fetch(url, {
                 body: formData,
                 method: 'POST'
             })
+            console.log(response);
             let data = await response.text()
-            console.log(alert2);
             alert2.innerText = data;
             alert2.classList.remove("d-none");
         });

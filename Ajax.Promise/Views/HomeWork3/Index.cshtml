@@ -1,0 +1,144 @@
+﻿@model Ajax.Promise.Models.ViewModels.RegisterVm
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>註冊會員</h1>
+
+@* <h4>RegisterVm</h4> *@
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Index" class="vstack gap-3" id="userForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="name" class="control-label"></label>
+                <input asp-for="name" class="form-control" />
+                <div id="alert1" class="alert alert-danger d-flex align-items-center d-none mt-1" role="alert">
+                </div>
+                <span asp-validation-for="name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="email" class="control-label"></label>
+                <input asp-for="email" class="form-control" />
+                <div id="alert2" class="alert alert-danger d-flex align-items-center d-none mt-1" role="alert">
+                </div>
+                <span asp-validation-for="email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="password" class="control-label"></label>
+                <input asp-for="password" class="form-control" />
+                <span asp-validation-for="password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="confirmPassword" class="control-label"></label>
+                <input asp-for="confirmPassword" class="form-control" />
+                <span asp-validation-for="confirmPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="age" class="control-label"></label>
+                <input asp-for="age" class="form-control" />
+                <span asp-validation-for="age" class="text-danger"></span>
+            </div>
+            <div>
+                <label for="imgForm" class="form-label">頭像:</label><br>
+                <input type="file" id="imgForm" name="imgForm" class="form-control mb-3">
+            </div>
+            <div class="form-group">
+                <input type="submit" value="送出" class="btn btn-primary" id="submit1" />
+            </div>
+        </form>
+        <div id="alert3" class="alert alert-primary d-flex align-items-center mt-2 d-none" role="alert">
+        </div>
+    </div>
+</div>
+
+@* <div>
+    <a asp-action="Index">Back to List</a>
+</div> *@
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        const name = document.querySelector("#name");
+        const alert1 = document.querySelector("#alert1");
+        const alert2 = document.querySelector("#alert2");
+        const alert3 = document.querySelector("#alert3");
+
+        const email = document.querySelector("#email");
+        
+        
+        const submit1 = document.getElementById("submit1");
+        // const alert2 = document.getElementById("alert2");
+        const userForm = document.querySelector("#userForm");
+
+        name.addEventListener("keyup", async () => {
+            let keyIn = name.value;
+            let url = `@Url.Content("~/homework2/nameCompare")?name=${keyIn}`;
+            let response = await fetch(url);
+
+            let result = await response.text() == 'True' ? true : false;
+
+            if (keyIn.length) {
+                alert1.classList.remove("d-none");
+                if (result) {
+                    alert1.innerText = `${keyIn} 帳號已存在`;
+                    alert1.classList.remove("alert-success")
+                    alert1.classList.add("alert-danger");
+                } else {
+                    alert1.innerText = `${keyIn} 帳號可使用`;
+                    alert1.classList.remove("alert-danger");
+                    alert1.classList.add("alert-success");
+                }
+            } else {
+                alert1.classList.add("d-none");
+            }
+        });
+
+        // console.log(alert2);
+        // alert2.addEventListener("change", () => {
+        //     console.log(123);
+        //     alert2.innerHTML.length > 0 ? alert2.classList.remove("d-none");
+        // });
+
+        email.addEventListener("change", async () => {
+            let keyIn = email.value;
+            // console.log(keyIn);
+            let url = `@Url.Content("~/homework2/emailCompare")?email=${keyIn}`;
+            let response = await fetch(url);
+
+            let result = await response.text() == 'True' ? true : false;
+            if (result) {
+                alert2.classList.remove("d-none");
+                alert2.innerText = `該 email 已存在`;
+            } else {
+                alert2.classList.add("d-none");
+            }
+        });
+
+        submit1.addEventListener('click', async (event) => {
+            event.preventDefault(); //防止預設行為的發生
+
+            //透過 FormData 物件讀取資料
+            const formData = new FormData(userForm);
+
+            console.log(formData);
+
+            //將 FormData 資料以 POST 傳送到 Server 端
+            const url = '@Url.Content("~/homework2/register")';
+            const response = await fetch(url, {
+                body: formData,
+                method: 'POST'
+            })
+            console.log(response);
+            let data = await response.text();
+
+            // console.log(alert3)
+
+            alert3.innerHTML = data;
+            alert3.classList.remove("d-none");
+        });
+
+    </script>
+}

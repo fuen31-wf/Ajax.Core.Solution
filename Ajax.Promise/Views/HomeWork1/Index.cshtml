@@ -1,42 +1,55 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@{
-}
 
-<div class="main bg-opacity-10 ps-4 pe-4"></div>
+<h1>Index</h1>
+
+<div class="main bg-opacity-10 ps-4 pe-4"></div> 
+
+</div>
+
 
 @section Scripts{
     <script src="~/js/travel.js"></script>
-    <script>
-        console.log(spots);
-        
+    <script>        
         const arr = spots.CommonFormat.Section;
-
         const main = document.querySelector('.main');
 
         let str = arr.map((item, index) => {
             let imgs = item.file.img;
 
-            let imgUrl;
+            let tagImgBtn;
+            let tagImg;
+            let tagPrevNext;
+
             if (Array.isArray(imgs)){
-                let base = 1 / imgs.length;
-                let r = Math.floor(Math.random() / base);
-                imgUrl = imgs[r].text;
+                tagImgBtn = imgs.map((img, i) => CreateBtns(index, i)).join('');
+                tagImg = imgs.map((img, i) => CreateImgs(img, i)).join('');
+                tagPrevNext = CrearPrevNext(index);
             } else {
-                imgUrl = imgs.text;
+                tagImgBtn = "";
+                tagImg = CreateImgs(imgs, 0);
+                tagPrevNext = "";
             }
 
             return `
-                      <div class="col">
-                        <div class="card">
-                          <img src="${imgUrl}" class="card-img-top" alt="...">
-                          <div class="card-body">
-                            <h5 class="card-title">${item.stitle}</h5>
-                            <p class="card-text">${item.xbody.slice(0,93)}.....</p>
-                          </div>
-                        </div>
-                      </div>`
+        <div class="col">
+            <div class="card">
+                        <div id="carouselExampleDark${index}" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        ${tagImgBtn}
+                    </div>
+                    <div class="carousel-inner">
+                        ${tagImg}
+                    </div>
+                        ${tagPrevNext}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">${item.stitle}</h5>
+                    <p class="card-text">${item.xbody.slice(0, 93)}.....</p>
+                </div>
+            </div>
+        </div>`
         }).join('');
 
         const node = document.createElement('div');
@@ -44,5 +57,31 @@
         node.innerHTML = str;
         main.append(node);
 
+        function CreateBtns(index, i) {
+            return `<button type="button" data-bs-target="#carouselExampleDark${index}" data-bs-slide-to="${i}" ${i ? '' : 'class="active" aria-current="true"'} aria-label="Slide ${i + 1}"></button>`;
+        }
+
+        function CreateImgs(img, i) {
+            let { "@@description": des, text } = img;
+
+            return `<div class="carousel-item ${i > 0 ? '' : 'active'}" data-bs-interval="5000">
+                        <img src="${text}" class="d-block w-100" alt="..."/>
+                        <div class="carousel-caption d-none d-md-block">
+                            <h6>${des}</h>
+                        </div>
+                    </div>`;
+        }
+
+        function CrearPrevNext(index) {
+            return `
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark${index}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark${index}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>`;
+        }
     </script>
 }
