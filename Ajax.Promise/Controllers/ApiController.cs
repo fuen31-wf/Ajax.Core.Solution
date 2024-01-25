@@ -138,5 +138,23 @@ namespace Ajax.Promise.Controllers
 
             return Json(spotsJm);
         }
+
+        public IActionResult AutoComplete()
+        {
+            return View();
+        }
+
+        public IActionResult SpotTitle(string keyword)
+        {
+            var spts = _dbContext.Spots.Where(s => s.SpotTitle.Contains(keyword))
+                                       .Select(s=>s.SpotTitle);
+            return Json(spts);
+        }
+
+        public IActionResult ApiTest()
+        {
+
+            return View();
+        }
     }
 }

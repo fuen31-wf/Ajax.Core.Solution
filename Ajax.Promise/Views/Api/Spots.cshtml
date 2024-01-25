@@ -4,8 +4,23 @@
 }
 
 <h1>Spots</h1>
+
 <div class="row mb-3">
-    <div class="col-9"></div>
+    <div class="col-9">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center" id="pageBtnUl">
+                @* <li class="page-item disabled">
+                    <a class="page-link">Previous</a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li> *@
+            </ul>
+        </nav>
+    </div>
     <div class="col-3">
         <input id="keySearch" class="form-control" type="text" placeholder="搜尋景點" aria-label="default input example">
     </div>
@@ -15,17 +30,22 @@
 
 @section Scripts{
     <script>
-        const spotsCriteria ={
+        let spotsCriteria ={
             "keyword" : "北投",
             "categoryId" : 0,
             "sortBy" : null,
             "sortType" : "asc",
-            "page" : 2,
+            "page" : 1,
             "pageSize" : 9
         }
 
+        let datas = {};
+
         const cards = document.querySelector(".cards");
         const keySearch = document.querySelector('#keySearch');
+        const pageBtnUl = document.querySelector('#pageBtnUl');
+
+        loadSpots();
 
         keySearch.addEventListener('keydown', (ev) => {
             if (ev.which === 13) {
@@ -35,8 +55,8 @@
             }
         })
 
-        loadSpots();
 
+        
 
         async function loadSpots (){
             const url = `@Url.Content("~/api/spots")`;
@@ -47,15 +67,19 @@
                 },
                 body: JSON.stringify(spotsCriteria)
             });
-            const datas = await response.json();
+            datas = await response.json();
             const spots = datas.spots;
             const spotsHtml = spots.map(s => CreatCard(s)).join('');
             cards.innerHTML = spotsHtml;
+            // console.log(datas.totalPages);
+
+            CrearePageBtn();
+            
         }
 
         function CreatCard(s) {
             const {spotId, spotTitle, spotDescription, spotImage, address} = s;
-            console.log(spotDescription.length)
+            // console.log(spotDescription.length)
             const des = spotDescription.length <= 100 ? 
                 spotDescription : spotDescription.slice(0 ,100) + '...';
 
@@ -72,6 +96,26 @@
                     </div>
                 </div>
             </div>`;
+        }
+
+        function CrearePageBtn() {
+            let htmlPageBtns = '';
+            for (let i = 1; i <= datas.totalPages; i++) {
+                htmlPageBtns += `<li class="page-item ${i == datas.currentPage ? "active" : ""}"><a class="page-link" href="#">${i}</a></li>`;
+            }
+            pageBtnUl.innerHTML = htmlPageBtns;
+
+            let pageBtns = document.querySelectorAll('#pageBtnUl li');
+            Array.from(pageBtns).forEach((btn, i, arr) => {
+                btn.addEventListener('click', (ev) => {
+                    target = ev.target;
+
+                    let num = Number(target.innerHTML);
+                    // console.log(num);
+                    spotsCriteria.page = num;
+                    loadSpots();
+                })
+            })
         }
     </script>
 }
